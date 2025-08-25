@@ -1,0 +1,133 @@
+<context>
+# Overview  
+파일 모니터링 및 자동 업로드 시스템은 Ubuntu 시스템에서 특정 폴더 구조를 모니터링하여 신규 이미지 파일을 자동으로 탐지하고, 데이터베이스에 기록하며, 외부 API를 통해 파일을 업로드하는 자동화 시스템입니다. 이 시스템은 Sega_1, Sega_2, Sega_3 폴더의 날짜별 구조에서 1분마다 새로운 이미지 파일을 스캔하고, DB에 기록되지 않은 파일을 자동으로 처리합니다.
+
+# Core Features  
+- **자동 파일 모니터링**: 1분 주기로 오늘 날짜 폴더를 스캔하여 신규 이미지 파일 탐지
+- **데이터베이스 관리**: 탐지된 파일 정보를 SQLite/PostgreSQL에 저장하고 중복 방지
+- **API 자동 업로드**: 탐지된 파일을 외부 API 엔드포인트에 자동 업로드
+- **응답 처리**: API 응답을 데이터베이스에 저장하여 추적 가능
+- **다중 폴더 지원**: Sega_1, Sega_2, Sega_3 폴더를 동시에 모니터링
+- **에러 처리 및 재시도**: 네트워크 오류나 파일 접근 문제 시 자동 재시도
+
+# User Experience  
+- **시스템 관리자**: 설정 파일을 통한 간편한 시스템 구성
+- **운영자**: 로그를 통한 시스템 상태 모니터링 및 문제 진단
+- **개발자**: 모듈화된 구조로 유지보수 및 확장 용이
+</context>
+<PRD>
+# Technical Architecture  
+## System Components
+- **File Monitor Service**: watchdog 라이브러리를 사용한 파일 시스템 모니터링
+- **Database Manager**: SQLite 기반 파일 메타데이터 및 업로드 상태 관리
+- **API Client**: HTTP 클라이언트를 통한 외부 API 통신
+- **Scheduler**: 1분 주기 작업 스케줄링
+- **Logger**: 상세한 시스템 로그 기록
+
+## Data Models
+- **files 테이블**: 파일 정보, 경로, 폴더명, 날짜, 상태 등
+- **upload_results 테이블**: 업로드 결과, API 응답, 상태 코드 등
+
+## APIs and Integrations
+- **외부 API**: http://211.231.137.111:18000/upload 엔드포인트
+- **파일 시스템**: Linux inotify 또는 Python watchdog
+- **데이터베이스**: SQLite (개발) / PostgreSQL (운영)
+
+## Infrastructure Requirements
+- Ubuntu 18.04+ 시스템
+- Python 3.8+ 환경
+- 충분한 디스크 공간 (로그 및 임시 파일)
+- 네트워크 접근 권한
+
+# Development Roadmap  
+## Phase 1: Foundation & Core Infrastructure
+- 프로젝트 구조 설정 및 기본 의존성 설치
+- 데이터베이스 스키마 설계 및 구현
+- 기본 설정 파일 구조 및 환경변수 관리
+- 로깅 시스템 구현
+
+## Phase 2: File Monitoring System
+- 파일 시스템 모니터링 서비스 구현
+- 날짜별 폴더 구조 파싱 및 파일 탐지 로직
+- 중복 파일 방지 및 상태 관리
+- 파일 메타데이터 추출 및 저장
+
+## Phase 3: Database Integration
+- SQLite 데이터베이스 연결 및 CRUD 작업
+- 파일 정보 저장 및 조회 기능
+- 업로드 상태 추적 시스템
+- 데이터 무결성 검증
+
+## Phase 4: API Integration
+- HTTP 클라이언트 구현
+- 파일 업로드 API 연동
+- 응답 처리 및 에러 핸들링
+- 재시도 메커니즘 구현
+
+## Phase 5: Scheduling & Automation
+- 1분 주기 작업 스케줄러 구현
+- 백그라운드 서비스 실행
+- 시스템 시작 시 자동 실행 설정
+- 프로세스 모니터링 및 재시작
+
+## Phase 6: Error Handling & Resilience
+- 네트워크 오류 처리
+- 파일 시스템 접근 권한 문제 해결
+- 데이터베이스 연결 오류 복구
+- 로그 분석 및 문제 진단 도구
+
+## Phase 7: Testing & Deployment
+- 단위 테스트 및 통합 테스트
+- 성능 테스트 및 최적화
+- Ubuntu 시스템 배포 스크립트
+- 모니터링 및 알림 시스템
+
+# Logical Dependency Chain
+## Foundation First
+1. **데이터베이스 스키마**: 모든 기능의 기반이 되는 데이터 구조
+2. **설정 관리**: 환경변수, API 키, 경로 설정 등
+3. **로깅 시스템**: 디버깅 및 운영을 위한 기본 인프라
+
+## Core Functionality
+4. **파일 탐지**: 실제 파일을 찾고 정보를 추출하는 핵심 기능
+5. **데이터 저장**: 탐지된 정보를 DB에 저장하는 기능
+6. **API 통신**: 외부 시스템과의 연동 기능
+
+## Automation & Reliability
+7. **스케줄링**: 자동화된 실행을 위한 타이머
+8. **에러 처리**: 안정적인 운영을 위한 복구 메커니즘
+9. **모니터링**: 시스템 상태 파악 및 문제 진단
+
+## Optimization & Production
+10. **성능 최적화**: 대용량 파일 처리 및 동시성 개선
+11. **배포 자동화**: Ubuntu 시스템 배포 및 설정 자동화
+12. **운영 도구**: 로그 분석, 상태 모니터링, 알림 시스템
+
+# Risks and Mitigations  
+## Technical Challenges
+- **파일 시스템 권한**: 적절한 사용자 권한 설정 및 sudo 권한 검토
+- **네트워크 안정성**: API 타임아웃 설정 및 재시도 로직 구현
+- **동시성 처리**: 여러 파일 동시 처리 시 락 메커니즘 구현
+
+## MVP Scope Management
+- **핵심 기능 우선**: 파일 탐지 → DB 저장 → API 업로드 순서로 구현
+- **단순한 구조**: 복잡한 기능보다 안정적인 기본 기능에 집중
+- **점진적 개선**: 기본 동작 확인 후 고급 기능 추가
+
+## Resource Constraints
+- **메모리 사용량**: 대용량 파일 처리 시 스트리밍 방식 사용
+- **디스크 공간**: 로그 로테이션 및 임시 파일 정리
+- **CPU 사용량**: 효율적인 파일 스캔 알고리즘 구현
+
+# Appendix  
+## Research Findings
+- Python watchdog 라이브러리: 크로스 플랫폼 파일 시스템 모니터링
+- SQLite vs PostgreSQL: 경량 개발 vs 확장 가능한 운영
+- Linux systemd: 서비스 자동 시작 및 관리
+
+## Technical Specifications
+- **파일 형식**: JPG, PNG 등 이미지 파일 지원
+- **폴더 구조**: 날짜별 하위 폴더 구조 (YYYY-MM-DD)
+- **API 응답**: JSON 형태의 응답 데이터 처리
+- **로그 레벨**: DEBUG, INFO, WARNING, ERROR, CRITICAL
+- **설정 파일**: YAML 또는 JSON 형태의 설정 관리

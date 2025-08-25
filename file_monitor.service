@@ -1,0 +1,28 @@
+[Unit]
+Description=File Monitoring and Auto-Upload Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=lanco
+Group=lanco
+WorkingDirectory=/home/lanco/cursor/temp_git/dy_gh_watch_and_upload
+ExecStart=/home/lanco/cursor/temp_git/dy_gh_watch_and_upload/venv/bin/python /home/lanco/cursor/temp_git/dy_gh_watch_and_upload/src/main.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# 환경 변수 설정
+Environment=PYTHONPATH=/home/lanco/cursor/temp_git/dy_gh_watch_and_upload
+Environment=PYTHONUNBUFFERED=1
+
+# 보안 설정 - /tmp 접근을 위해 수정
+NoNewPrivileges=true
+PrivateTmp=false
+ProtectSystem=false
+ReadWritePaths=/home/lanco/cursor/temp_git/dy_gh_watch_and_upload /tmp
+
+[Install]
+WantedBy=multi-user.target

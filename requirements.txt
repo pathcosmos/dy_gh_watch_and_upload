@@ -1,0 +1,22 @@
+# File Monitoring and Auto-Upload System Dependencies
+
+# Core dependencies
+watchdog>=3.0.0          # File system monitoring
+SQLAlchemy>=2.0.0        # Database ORM
+requests>=2.31.0         # HTTP client for API communication
+APScheduler>=3.10.0      # Task scheduling
+python-dotenv>=1.0.0     # Environment variable management
+PyYAML>=6.0.1            # YAML configuration file parsing
+
+# Database drivers
+psycopg2-binary>=2.9.0   # PostgreSQL adapter (for production)
+# SQLite is included with Python standard library
+
+# Development and testing dependencies
+pytest>=7.4.0            # Testing framework
+pytest-mock>=3.11.0      # Mocking for tests
+pytest-cov>=4.1.0        # Test coverage
+
+# Optional: Additional utilities
+python-dateutil>=2.8.0   # Date parsing utilities
+Pillow>=10.0.0           # Image processing (if needed)

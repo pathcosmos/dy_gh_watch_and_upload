@@ -1,0 +1,97 @@
+# File Monitoring and Auto-Upload System Configuration
+# API 스펙 분석 결과를 반영하여 작성됨
+
+# 환경 설정
+environment:
+  app_env: development  # development, production
+  debug: true
+
+# 모니터링 설정
+monitor:
+  base_folders:
+    - /tmp/test_sega_1
+    - /tmp/test_sega_2
+    - /tmp/test_sega_3
+  scan_interval_minutes: 1
+  image_extensions:
+    - .jpg
+    - .jpeg
+    - .png
+    - .gif
+    - .bmp
+    - .tiff
+  max_file_size: 10485760  # 10MB in bytes
+
+# 데이터베이스 설정
+database:
+  type: sqlite  # sqlite 또는 postgresql
+  sqlite_path: data/app.db
+  # PostgreSQL 설정 (운영 환경용)
+  host: localhost
+  port: 5432
+  user: postgres
+  password: password
+  dbname: file_monitor_db
+  pool_size: 5
+  max_overflow: 10
+
+# API 설정 (http://211.231.137.111:18000/upload 스펙 기반)
+api:
+  endpoint: "http://211.231.137.111:18000"
+  upload_endpoint: "/upload"
+  timeout_seconds: 30
+  retry_attempts: 3
+  retry_delay_seconds: 5
+  max_file_size: 10485760  # 10MB in bytes
+  allowed_extensions:
+    - .jpg
+    - .jpeg
+    - .png
+    - .gif
+    - .bmp
+    - .tiff
+  # API 응답 처리 설정
+  response_timeout: 60
+  validate_response: true
+
+# 로깅 설정
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: logs/app.log
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console_level: INFO
+
+# 파일 처리 설정
+file_processing:
+  chunk_size: 8192  # 8KB chunks for large file processing
+  temp_directory: /tmp/file_monitor
+  cleanup_temp_files: true
+  max_concurrent_uploads: 5
+
+# 업로드 설정
+upload:
+  max_concurrent_uploads: 5
+  timeout_seconds: 60
+  retry_delay_seconds: 10
+  max_retries: 3
+  priority_enabled: true
+  batch_size: 10
+
+# 스케줄러 설정
+scheduler:
+  scan_interval_minutes: 1
+  enable_periodic_scan: true
+  enable_health_check: true
+  enable_cleanup: true
+  health_check_interval_minutes: 5
+  cleanup_time: "02:00"  # 매일 새벽 2시
+
+# 시스템 설정
+system:
+  user: filemonitor
+  group: filemonitor
+  working_directory: /opt/file-monitor
+  pid_file: /var/run/file-monitor.pid
+  log_directory: /var/log/file-monitor
